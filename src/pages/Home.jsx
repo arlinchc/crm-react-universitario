@@ -7,7 +7,7 @@ function Home() {
         Inicio
       </h2>
       <p className="text-slate-600">
-        Bienvenido a nuestra app web con React
+        Bienvenido a nuestra app web con Reacttt
       </p>
     </CRMLayout>
   );
