@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
+import ProspectDetail from "./pages/ProspectDetail";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         {/* Administrativas (usan CRMLayout internamente) */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<Leads />} />
+        <Route path="/prospect/:id" element={<ProspectDetail />} />
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/reports" element={<Reports />} />
       </Routes>
@@ -28,3 +30,4 @@ function App() {
 }
 
 export default App;
+

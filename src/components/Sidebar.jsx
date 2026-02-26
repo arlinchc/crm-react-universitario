@@ -37,6 +37,9 @@ function Sidebar() {
           <Link to="/leads" className="hover:text-sky-400 transition">
             Leads
           </Link>
+          <Link to="/prospect/1" className="hover:text-sky-400 transition">
+            Perfil Prospecto
+          </Link>
           <Link to="/teachers" className="hover:text-sky-400 transition">
             Asesores
           </Link>
