@@ -6,9 +6,7 @@ import {
   PieChart, Pie, Legend,
 } from "recharts";
 
-// ---------------------------------------------------------------------------
 // DATOS ESTÁTICOS (listos para sustituir por llamadas a API)
-// ---------------------------------------------------------------------------
 
 const kpis = [
   { label: "Prospectos",  value: 300, cambio: "+12%", tendencia: "up",   fondo: "bg-blue-100",   color: "text-blue-600",   icon: "users"   },
@@ -50,10 +48,7 @@ const licenciaturas = [
   { id: 5, nombre: "Mercadotecnia",               abrev: "Mercadotecnia",  leads: 14 },
 ];
 
-// Distribución de leads según el horario preferido
-// color    → clase Tailwind para la barra de progreso
-// fondo    → clase Tailwind para el fondo de la tarjeta
-// texto    → clase Tailwind para el texto coloreado
+
 const horarios = [
   { tipo: "Matutino",   descripcion: "7:00 – 13:00 hrs",  leads: 68, porcentaje: 44, color: "bg-sky-500",    fondo: "bg-sky-50",    texto: "text-sky-700"    },
   { tipo: "Vespertino", descripcion: "13:00 – 19:00 hrs", leads: 52, porcentaje: 33, color: "bg-amber-500",  fondo: "bg-amber-50",  texto: "text-amber-700"  },
@@ -68,11 +63,6 @@ const ALERTA_ESTILO = {
   info:  "border-l-4 border-sky-400 bg-sky-50",
 };
 
-// ---------------------------------------------------------------------------
-// ÍCONOS SVG INLINE
-// Cada ícono es un componente que recibe className para tamaño y color.
-// No necesitamos una librería externa; el SVG se incluye directamente en el HTML.
-// ---------------------------------------------------------------------------
 
 function IconUsers({ className }) {
   return (
@@ -130,9 +120,9 @@ const ICONOS = {
   diploma: IconDiploma,
 };
 
-// ---------------------------------------------------------------------------
+
 // COMPONENTE AUXILIAR: KPICard
-// ---------------------------------------------------------------------------
+
 function KPICard({ label, value, cambio, tendencia, fondo, color, icon }) {
   const esPositivo = tendencia === "up";
   const Icono = ICONOS[icon];
@@ -154,9 +144,8 @@ function KPICard({ label, value, cambio, tendencia, fondo, color, icon }) {
   );
 }
 
-// ---------------------------------------------------------------------------
 // COMPONENTE PRINCIPAL: Dashboard
-// ---------------------------------------------------------------------------
+
 function Dashboard() {
   return (
     <CRMLayout>
@@ -218,11 +207,7 @@ function Dashboard() {
                 outerRadius define el tamaño total del pastel.
                 dataKey indica qué campo numérico usar para el tamaño de cada sector.
               */}
-              {/*
-                En recharts v3, el campo "fill" de cada objeto en el arreglo
-                "data" se aplica automáticamente a su sector.
-                No necesitamos el componente Cell (que quedó obsoleto en v3).
-              */}
+              
               <Pie
                 data={distribucion}
                 dataKey="value"
@@ -310,7 +295,7 @@ function Dashboard() {
 
         {/* Distribución por horario */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Leads por horario</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Horarios escogidos</h3>
           <div className="flex flex-col gap-3">
             {horarios.map((h) => (
               <div key={h.tipo} className={`${h.fondo} rounded-lg p-4`}>
