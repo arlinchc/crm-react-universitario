@@ -4,9 +4,14 @@ content: [
   "./index.html",
   "./src/**/*.{js,jsx}",
 ],
-  theme: {
-    extend: {},
+ theme: {
+  extend: {
+    colors: {
+      primary: "#1a1a32",   // azul marino
+      accent: "#f0c02f",    // amarillo
+    },
   },
+},
   plugins: [],
 }
 
