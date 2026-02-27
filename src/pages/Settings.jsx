@@ -156,7 +156,7 @@ export default function Settings() {
         <div className="flex items-center gap-3">
           {saved && (
             <div className="text-sm px-3 py-2 rounded-xl bg-emerald-950/40 border border-emerald-900/40 text-emerald-200">
-              Cambios guardados (simulado)
+              Cambios guardados 
             </div>
           )}
 
@@ -219,7 +219,7 @@ export default function Settings() {
               </span>{" "}
               y{" "}
               <span className="font-medium text-slate-200">{INST.navy}</span>. <br />
-              Dominante: Azul Marino (tema oscuro).
+              Dominante: Azul Marino
             </p>
           </div>
         </aside>
@@ -276,7 +276,7 @@ export default function Settings() {
 
               {/* Sección extra */}
               <div className="mt-5 p-4 rounded-2xl border border-slate-700 bg-slate-800">
-                <div className="text-sm font-medium text-white">Nota de seguridad (simulada)</div>
+                <div className="text-sm font-medium text-white">Nota de seguridad</div>
                 <div className="text-sm text-slate-300 mt-1">
                   Recomendación: solo Administradores deben editar estados y exportar reportes.
                 </div>
@@ -366,7 +366,7 @@ export default function Settings() {
                     <option>Claro</option>
                     <option>Automático</option>
                   </select>
-                  <p className="text-xs text-slate-500 mt-2">Simulado. El módulo está en tema oscuro.</p>
+                  <p className="text-xs text-slate-500 mt-2">El módulo está en tema oscuro.</p>
                 </div>
 
                 {/* Densidad */}
@@ -499,7 +499,7 @@ export default function Settings() {
               {/* Error visual simulado */}
               {!notifs.email && (
                 <div className="mt-4 p-4 rounded-2xl border border-rose-900/40 bg-rose-950/30">
-                  <div className="text-sm font-medium text-rose-200">Validación simulada</div>
+                  <div className="text-sm font-medium text-rose-200">Validación</div>
                   <div className="text-sm text-rose-200/90 mt-1">
                     Recomendación: activa Email para notificaciones críticas del proceso.
                   </div>
