@@ -7,17 +7,17 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} /> 
 
-        {/* Administrativas (usan CRMLayout internamente) */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<Leads />} />
         <Route path="/teachers" element={<Teachers />} />
