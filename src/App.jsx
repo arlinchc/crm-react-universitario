@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
-import Login from "./pages/Login";
+import Asesores from "./pages/Asesores";
 
 function App() {
   return (
@@ -21,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<Leads />} />
         <Route path="/teachers" element={<Teachers />} />
+        <Route path="/asesores" element={<Asesores />} />
         <Route path="/reports" element={<Reports />} />
       </Routes>
     </BrowserRouter>
