@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 
+
 function Sidebar() {
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen p-6 flex flex-col">
+    <aside className="w-64 bg-[#1a1a32] text-white min-h-screen p-6 flex flex-col">
       <h2 className="text-xl font-bold mb-8">
         CRM UNID
       </h2>
@@ -13,13 +14,13 @@ function Sidebar() {
           Sitio
         </p>
         <nav className="flex flex-col gap-3">
-          <Link to="/" className="hover:text-sky-400 transition">
+          <Link to="/" className="hover:text-[#f0c02f] transition">
             Inicio
           </Link>
-          <Link to="/about" className="hover:text-sky-400 transition">
+          <Link to="/about" className="hover:text-[#f0c02f] transition">
             Acerca de
           </Link>
-          <Link to="/contact" className="hover:text-sky-400 transition">
+          <Link to="/contact" className="hover:text-[#f0c02f] transition">
             Contacto
           </Link>
         </nav>
@@ -31,10 +32,10 @@ function Sidebar() {
           Administración
         </p>
         <nav className="flex flex-col gap-3">
-          <Link to="/dashboard" className="hover:text-sky-400 transition">
+          <Link to="/dashboard" className="hover:text-[#f0c02f] transition">
             Dashboard
           </Link>
-          <Link to="/leads" className="hover:text-sky-400 transition">
+          <Link to="/leads" className="hover:text-[#f0c02f] transition">
             Leads
           </Link>
           <Link to="/prospect/1" className="hover:text-sky-400 transition">
@@ -43,8 +44,11 @@ function Sidebar() {
           <Link to="/teachers" className="hover:text-sky-400 transition">
             Asesores
           </Link>
-          <Link to="/reports" className="hover:text-sky-400 transition">
+          <Link to="/reports" className="hover:text-[#f0c02f] transition">
             Reportes
+          </Link>
+          <Link to="/settings" className="hover:text-[#f0c02f] transition">
+            Configuración
           </Link>
         </nav>
       </div>
