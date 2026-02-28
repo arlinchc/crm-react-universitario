@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
+import Landing from "./pages/Landing";
 import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
@@ -21,7 +22,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} /> 
+        <Route path="/"      element={<Landing />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/leads" element={<Leads />} />
