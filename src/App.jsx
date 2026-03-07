@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -8,22 +9,79 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
+import ProspectDetail from "./pages/ProspectDetail";
+import Settings from "./pages/Settings";
+import Asesores from "./pages/Asesores";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Públicas */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/"      element={<Landing />} />
 
-        {/* Administrativas (usan CRMLayout internamente) */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/leads" element={<Leads />} />
-        <Route path="/teachers" element={<Teachers />} />
-        <Route path="/reports" element={<Reports />} />
+        {/* Administrativas */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leads"
+          element={
+            <ProtectedRoute>
+              <Leads />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prospect/:id"
+          element={
+            <ProtectedRoute>
+              <ProspectDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teachers"
+          element={
+            <ProtectedRoute>
+              <Teachers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/asesores"
+          element={
+            <ProtectedRoute>
+              <Asesores />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
