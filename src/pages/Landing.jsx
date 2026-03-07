@@ -75,9 +75,9 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
       </svg>
     ),
     title: "Gestión de Prospectos",
@@ -86,7 +86,7 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
       </svg>
     ),
     title: "Reportes Estratégicos",
@@ -95,8 +95,8 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
       </svg>
     ),
     title: "Acceso Seguro por Roles",
@@ -105,8 +105,8 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
       </svg>
     ),
     title: "Seguimiento en Tiempo Real",
@@ -115,7 +115,7 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="M18 20V10M12 20V4M6 20v-6"/>
+        <path d="M18 20V10M12 20V4M6 20v-6" />
       </svg>
     ),
     title: "Indicadores de Conversión",
@@ -124,7 +124,7 @@ const BENEFITS = [
   {
     icon: (
       <svg width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
     title: "Configuración Institucional",
@@ -133,10 +133,10 @@ const BENEFITS = [
 ];
 
 const STEPS = [
-  { num: "01", label: "Registro de Prospecto",  sub: "El interesado llena el formulario público." },
-  { num: "02", label: "Asignación de Asesor",   sub: "El sistema notifica y asigna automáticamente." },
-  { num: "03", label: "Seguimiento Activo",      sub: "El asesor registra cada interacción." },
-  { num: "04", label: "Inscripción Confirmada",  sub: "El prospecto se convierte en alumno UNID." },
+  { num: "01", label: "Registro de Prospecto", sub: "El interesado llena el formulario público." },
+  { num: "02", label: "Asignación de Asesor", sub: "El sistema notifica y asigna automáticamente." },
+  { num: "03", label: "Seguimiento Activo", sub: "El asesor registra cada interacción." },
+  { num: "04", label: "Inscripción Confirmada", sub: "El prospecto se convierte en alumno UNID." },
 ];
 
 /* ─────────────────────────────────────────
@@ -153,7 +153,7 @@ function Hero({ onLogin }) {
       <div style={{
         position: "absolute", inset: 0,
         background: "radial-gradient(ellipse 80% 60% at 50% 0%, #2a2a50 0%, var(--navy) 70%)",
-      }}/>
+      }} />
       {/* Grid */}
       <div style={{
         position: "absolute", inset: 0,
@@ -162,7 +162,7 @@ function Hero({ onLogin }) {
           linear-gradient(90deg, rgba(240,192,47,0.04) 1px, transparent 1px)
         `,
         backgroundSize: "60px 60px",
-      }}/>
+      }} />
       {/* Orbs decorativos */}
       <div style={{
         position: "absolute", top: "15%", left: "8%",
@@ -170,14 +170,14 @@ function Hero({ onLogin }) {
         background: "radial-gradient(circle, rgba(240,192,47,0.12) 0%, transparent 70%)",
         borderRadius: "50%", filter: "blur(40px)",
         animation: "float 8s ease-in-out infinite",
-      }}/>
+      }} />
       <div style={{
         position: "absolute", bottom: "20%", right: "10%",
         width: 240, height: 240,
         background: "radial-gradient(circle, rgba(240,192,47,0.08) 0%, transparent 70%)",
         borderRadius: "50%", filter: "blur(30px)",
         animation: "float 10s ease-in-out infinite reverse",
-      }}/>
+      }} />
 
       {/* Contenido */}
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 780 }}>
@@ -194,8 +194,8 @@ function Hero({ onLogin }) {
             boxShadow: "0 0 30px rgba(240,192,47,0.35)",
           }}>
             <svg width="28" height="28" fill="none" stroke="#1a1a32" strokeWidth="2.2" viewBox="0 0 24 24">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
           </div>
           <div style={{ textAlign: "left" }}>
@@ -224,7 +224,7 @@ function Hero({ onLogin }) {
             width: 7, height: 7, borderRadius: "50%",
             background: "var(--yellow)", boxShadow: "0 0 8px var(--yellow)",
             display: "inline-block", animation: "pulse-ring 1.8s ease-out infinite",
-          }}/>
+          }} />
           <span style={{
             fontSize: "0.75rem", fontWeight: 600, color: "var(--yellow)",
             letterSpacing: "0.06em", textTransform: "uppercase",
@@ -239,7 +239,7 @@ function Hero({ onLogin }) {
           fontSize: "clamp(2.6rem, 6vw, 4.8rem)",
           lineHeight: 1.08, marginBottom: "1.5rem", color: "#fff",
         }}>
-          Cada prospecto,<br/>
+          Cada prospecto,<br />
           <span style={{
             background: "linear-gradient(135deg, #f0c02f 0%, #ffe066 50%, #d4a820 100%)",
             backgroundSize: "200% auto",
@@ -263,7 +263,7 @@ function Hero({ onLogin }) {
         <div className="anim-fade-up delay-5" style={{
           display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap",
         }}>
-          <button  style={{
+          <button style={{
             background: "linear-gradient(135deg, #f0c02f 0%, #ffd040 100%)",
             color: "var(--navy)", border: "none", borderRadius: 12,
             padding: "0.9rem 2.4rem", fontFamily: "var(--font-body)",
@@ -272,10 +272,10 @@ function Hero({ onLogin }) {
             display: "flex", alignItems: "center", gap: "0.5rem",
           }}
             onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 40px rgba(240,192,47,0.5)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)";   e.currentTarget.style.boxShadow = "0 4px 30px rgba(240,192,47,0.35)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 30px rgba(240,192,47,0.35)"; }}
           >
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
             </svg>
             Acceder al sistema
           </button>
@@ -289,11 +289,11 @@ function Hero({ onLogin }) {
             display: "flex", alignItems: "center", gap: "0.5rem",
           }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "transparent";            e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
           >
             Ver beneficios
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <polyline points="6 9 12 15 18 9"/>
+              <polyline points="6 9 12 15 18 9" />
             </svg>
           </a>
         </div>
@@ -306,9 +306,9 @@ function Hero({ onLogin }) {
           animation: "fadeUp 0.7s 0.75s both",
         }}>
           {[
-            { val: "7",    label: "Módulos Integrados" },
+            { val: "7", label: "Módulos Integrados" },
             { val: "100%", label: "Frontend Responsivo" },
-            { val: "∞",    label: "Prospectos a gestionar" },
+            { val: "∞", label: "Prospectos a gestionar" },
           ].map((stat) => (
             <div key={stat.label} style={{ textAlign: "center" }}>
               <div style={{
@@ -335,7 +335,7 @@ function Benefits() {
         position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
         width: 1, height: 80,
         background: "linear-gradient(to bottom, transparent, var(--yellow-mid))",
-      }}/>
+      }} />
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "4rem" }}>
           <div style={{
@@ -347,7 +347,7 @@ function Benefits() {
             fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
             color: "#fff", lineHeight: 1.15, marginBottom: "1rem",
           }}>
-            Todo lo que necesitas,<br/>en un solo lugar.
+            Todo lo que necesitas,<br />en un solo lugar.
           </h2>
           <p style={{ color: "var(--text-secondary)", fontSize: "1rem", maxWidth: 480, margin: "0 auto", lineHeight: 1.7 }}>
             Diseñado específicamente para el área de captación universitaria, sin complejidad innecesaria.
@@ -397,7 +397,7 @@ function HowItWorks() {
         width: 500, height: 500,
         background: "radial-gradient(circle, rgba(240,192,47,0.05) 0%, transparent 70%)",
         borderRadius: "50%",
-      }}/>
+      }} />
       <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5rem", alignItems: "center" }}>
           {/* Texto */}
@@ -411,7 +411,7 @@ function HowItWorks() {
               fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
               color: "#fff", lineHeight: 1.15, marginBottom: "1.2rem",
             }}>
-              Del primer contacto<br/>a la inscripción final.
+              Del primer contacto<br />a la inscripción final.
             </h2>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.8, marginBottom: "2.5rem" }}>
               UNID CRM acompaña cada etapa del ciclo de vida del prospecto,
@@ -425,7 +425,7 @@ function HowItWorks() {
               color: "var(--yellow)", fontSize: "0.82rem", fontWeight: 500,
             }}>
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
               100% seguimiento garantizado
             </div>
@@ -440,7 +440,7 @@ function HowItWorks() {
                     position: "absolute", left: "1.75rem", top: "3.5rem",
                     width: 1, height: "calc(100% - 0.5rem)",
                     background: "linear-gradient(to bottom, rgba(240,192,47,0.4), rgba(240,192,47,0.05))",
-                  }}/>
+                  }} />
                 )}
                 <div style={{
                   width: 56, height: 56, borderRadius: 14, flexShrink: 0,
@@ -473,7 +473,7 @@ function AccessCTA({ onLogin }) {
         width: 600, height: 300,
         background: "radial-gradient(ellipse, rgba(240,192,47,0.12) 0%, transparent 70%)",
         filter: "blur(20px)", pointerEvents: "none",
-      }}/>
+      }} />
       <div style={{ maxWidth: 680, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
         <div style={{
           width: 72, height: 72, borderRadius: 20, margin: "0 auto 2rem",
@@ -482,8 +482,8 @@ function AccessCTA({ onLogin }) {
           boxShadow: "0 0 40px rgba(240,192,47,0.4)",
         }}>
           <svg width="32" height="32" fill="none" stroke="#1a1a32" strokeWidth="2.2" viewBox="0 0 24 24">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </div>
         <h2 style={{
@@ -506,10 +506,10 @@ function AccessCTA({ onLogin }) {
           display: "inline-flex", alignItems: "center", gap: "0.7rem",
         }}
           onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px) scale(1.02)"; e.currentTarget.style.boxShadow = "0 12px 50px rgba(240,192,47,0.55)"; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)";       e.currentTarget.style.boxShadow = "0 6px 40px rgba(240,192,47,0.4)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.boxShadow = "0 6px 40px rgba(240,192,47,0.4)"; }}
         >
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.3" viewBox="0 0 24 24">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
           </svg>
           Iniciar sesión en el CRM
         </button>
@@ -535,8 +535,8 @@ function Footer() {
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <svg width="15" height="15" fill="none" stroke="#1a1a32" strokeWidth="2.2" viewBox="0 0 24 24">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+            <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
         </div>
         <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>
