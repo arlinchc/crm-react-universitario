@@ -83,7 +83,6 @@ function App() {
           }
         />
       </Routes>
-      
     </BrowserRouter>
   );
 }
