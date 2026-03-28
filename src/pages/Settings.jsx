@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Tags, Palette, Bell, Plus, Save } from "lucide-react";
 
 /**
@@ -66,7 +66,11 @@ const Badge = ({ children, variant = "default", accent = "Amarillo" }) => {
     info: "bg-sky-950/40 text-sky-200 border-sky-900/40",
   };
 
-  return <span className={`${base} ${styles[variant] || styles.default}`}>{children}</span>;
+  return (
+    <span className={`${base} ${styles[variant] || styles.default}`}>
+      {children}
+    </span>
+  );
 };
 
 const Card = ({ title, subtitle, right, children }) => (
@@ -86,24 +90,27 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState("roles");
 
   const [prefs, setPrefs] = useState({
-    theme: "Oscuro",
-    density: "Normal",
+    institution_name: "",
+    address: "",
+    phone: "",
     accent: "Amarillo",
   });
 
   const [saved, setSaved] = useState(false);
-
-  const saveFake = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
-  };
+  const [loadingConfig, setLoadingConfig] = useState(true);
+  const [loadingStates, setLoadingStates] = useState(true);
 
   const [roles] = useState([
     {
       name: "Administrador",
       tag: "admin",
       desc: "Acceso total al sistema, parámetros y reportes.",
-      perms: ["Configurar estados", "Gestionar roles", "Exportar", "Auditoría"],
+      perms: [
+        "Configurar estados",
+        "Gestionar roles",
+        "Exportar",
+        "Auditoría",
+      ],
     },
     {
       name: "Asesor",
@@ -113,12 +120,7 @@ export default function Settings() {
     },
   ]);
 
-  const [states, setStates] = useState([
-    { name: "Prospecto", color: "info", active: true },
-    { name: "Contactado", color: "warn", active: true },
-    { name: "Confirmado", color: "ok", active: true },
-    { name: "Inscrito", color: "ok", active: true },
-  ]);
+  const [states, setStates] = useState([]);
 
   const [notifs, setNotifs] = useState({
     email: true,
@@ -127,6 +129,140 @@ export default function Settings() {
     weekly: true,
     frequency: "Diaria",
   });
+
+  useEffect(() => {
+    const loadConfiguration = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/configuration");
+        if (!response.ok) {
+          throw new Error("Error loading configuration");
+        }
+
+        const data = await response.json();
+
+        if (data) {
+          setPrefs((prev) => ({
+            ...prev,
+            institution_name: data.institution_name || "",
+            address: data.address || "",
+            phone: data.phone || "",
+          }));
+        }
+      } catch (error) {
+        console.error("Error loading configuration:", error);
+      } finally {
+        setLoadingConfig(false);
+      }
+    };
+
+    const loadStatuses = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/lead-statuses");
+        if (!response.ok) {
+          throw new Error("Error loading statuses");
+        }
+
+        const data = await response.json();
+
+        const mappedStatuses = data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          color: "info",
+          active: item.active,
+        }));
+
+        setStates(mappedStatuses);
+      } catch (error) {
+        console.error("Error loading lead statuses:", error);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+
+    loadConfiguration();
+    loadStatuses();
+  }, []);
+
+  const saveSettings = async () => {
+    try {
+      const configResponse = await fetch(
+        "http://localhost:3000/api/configuration",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            institution_name: prefs.institution_name,
+            address: prefs.address,
+            phone: prefs.phone,
+          }),
+        }
+      );
+
+      if (!configResponse.ok) {
+        throw new Error("Error saving configuration");
+      }
+
+      const statesToUpdate = states.map((state) =>
+        fetch(`http://localhost:3000/api/lead-statuses/${state.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: state.name,
+            active: state.active,
+          }),
+        })
+      );
+
+      await Promise.all(statesToUpdate);
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+    } catch (error) {
+      console.error(error);
+      alert("Hubo un error al guardar la configuración.");
+    }
+  };
+
+  const addNewState = async () => {
+    const name = prompt("Ingresa el nombre del nuevo estado:");
+    if (!name) return;
+
+    try {
+      const response = await fetch("http://localhost:3000/api/lead-statuses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          active: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error creating status");
+      }
+
+      const newStatus = await response.json();
+
+      setStates([
+        ...states,
+        {
+          id: newStatus.id,
+          name: newStatus.name,
+          color: "info",
+          active: newStatus.active,
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo agregar el estado.");
+    }
+  };
 
   const A = accentStyles[prefs.accent];
 
@@ -142,7 +278,8 @@ export default function Settings() {
           <div>
             <h1 className="text-2xl font-bold text-white">Configuración</h1>
             <p className="text-slate-400 mt-1">
-              Panel administrativo: roles, estados del CRM, preferencias y notificaciones.
+              Panel administrativo: roles, estados del CRM y preferencias del
+              sistema conectadas a base de datos.
             </p>
           </div>
 
@@ -155,7 +292,7 @@ export default function Settings() {
 
             <button
               type="button"
-              onClick={saveFake}
+              onClick={saveSettings}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl transition ${A.button}`}
             >
               <Save size={18} />
@@ -189,12 +326,19 @@ export default function Settings() {
                         active ? "bg-black/10" : "bg-slate-800"
                       }`}
                     >
-                      <Icon size={18} className={active ? "text-black" : "text-slate-200"} />
+                      <Icon
+                        size={18}
+                        className={active ? "text-black" : "text-slate-200"}
+                      />
                     </span>
 
                     <div className="flex-1">
                       <div className="font-medium">{t.label}</div>
-                      <div className={`text-xs ${active ? "text-black/70" : "text-slate-500"}`}>
+                      <div
+                        className={`text-xs ${
+                          active ? "text-black/70" : "text-slate-500"
+                        }`}
+                      >
                         Ajustes del sistema
                       </div>
                     </div>
@@ -205,13 +349,11 @@ export default function Settings() {
 
             <div className="mt-4 bg-slate-900 border border-slate-700 rounded-2xl p-4">
               <p className="text-sm text-slate-300">
-                Paleta institucional:{" "}
-                <span className="font-medium" style={{ color: INST.yellow }}>
-                  {INST.yellow}
-                </span>{" "}
-                y <span className="font-medium text-slate-200">{INST.navy}</span>.
+                <span className="font-medium text-slate-100">Tema:</span>{" "}
+                Oscuro
                 <br />
-                Dominante: Azul Marino
+                <span className="font-medium text-slate-100">Dominante:</span>{" "}
+                Azul Marino
               </p>
             </div>
           </aside>
@@ -266,9 +408,12 @@ export default function Settings() {
                 </div>
 
                 <div className="mt-5 p-4 rounded-2xl border border-slate-700 bg-slate-800">
-                  <div className="text-sm font-medium text-white">Nota de seguridad</div>
+                  <div className="text-sm font-medium text-white">
+                    Nota de seguridad
+                  </div>
                   <div className="text-sm text-slate-300 mt-1">
-                    Recomendación: solo Administradores deben editar estados y exportar reportes.
+                    Recomendación: solo Administradores deben editar estados y
+                    exportar reportes.
                   </div>
                 </div>
               </Card>
@@ -277,170 +422,276 @@ export default function Settings() {
             {activeTab === "states" && (
               <Card
                 title="Estados del CRM"
-                subtitle="Define el flujo de captación (simulado)"
+                subtitle="Define el flujo de captación desde la base de datos"
                 right={
                   <button
                     type="button"
                     className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl transition ${A.button}`}
+                    onClick={addNewState}
                   >
                     <Plus size={16} />
                     Agregar estado
                   </button>
                 }
               >
-                <div className="space-y-3">
-                  {states.map((s, idx) => (
-                    <div
-                      key={s.name}
-                      className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-slate-700 bg-slate-900"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Badge variant={s.color} accent={prefs.accent}>
-                          {s.name}
-                        </Badge>
-                        <span className="text-sm text-slate-400">Visible en Leads y Perfil</span>
+                {loadingStates ? (
+                  <p className="text-slate-400">Cargando estados...</p>
+                ) : (
+                  <>
+                    <div className="space-y-3">
+                      {states.map((s, idx) => (
+                        <div
+                          key={s.id}
+                          className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 rounded-2xl border border-slate-700 bg-slate-900"
+                        >
+                          <div className="flex-1 flex flex-col gap-2">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <Badge variant={s.color} accent={prefs.accent}>
+                                {s.name || "Sin nombre"}
+                              </Badge>
+                              <span className="text-sm text-slate-400">
+                                Visible en Leads y Perfil
+                              </span>
+                            </div>
+
+                            <input
+                              type="text"
+                              className="rounded-xl bg-slate-800 border border-slate-600 px-3 py-2 text-white focus:outline-none"
+                              value={s.name}
+                              onChange={(e) => {
+                                const copy = [...states];
+                                copy[idx] = {
+                                  ...copy[idx],
+                                  name: e.target.value,
+                                };
+                                setStates(copy);
+                              }}
+                              placeholder="Nombre del estado"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-400">
+                              Activo
+                            </span>
+                            <Switch
+                              checked={s.active}
+                              accent={prefs.accent}
+                              onClick={() => {
+                                const copy = [...states];
+                                copy[idx] = {
+                                  ...copy[idx],
+                                  active: !copy[idx].active,
+                                };
+                                setStates(copy);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                        <div className="text-xs text-slate-400">
+                          Total de estados
+                        </div>
+                        <div className="text-lg font-semibold text-white">
+                          {states.length}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-slate-400">Activo</span>
-                        <Switch
-                          checked={s.active}
-                          accent={prefs.accent}
-                          onClick={() => {
-                            const copy = [...states];
-                            copy[idx] = { ...copy[idx], active: !copy[idx].active };
-                            setStates(copy);
-                          }}
-                        />
+                      <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                        <div className="text-xs text-slate-400">Activos</div>
+                        <div className="text-lg font-semibold text-white">
+                          {states.filter((x) => x.active).length}
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                        <div className="text-xs text-slate-400">Inactivos</div>
+                        <div className="text-lg font-semibold text-white">
+                          {states.filter((x) => !x.active).length}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <div className="text-xs text-slate-400">Total de estados</div>
-                    <div className="text-lg font-semibold text-white">{states.length}</div>
-                  </div>
-                  <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <div className="text-xs text-slate-400">Activos</div>
-                    <div className="text-lg font-semibold text-white">
-                      {states.filter((x) => x.active).length}
-                    </div>
-                  </div>
-                  <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <div className="text-xs text-slate-400">Inactivos</div>
-                    <div className="text-lg font-semibold text-white">
-                      {states.filter((x) => !x.active).length}
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </Card>
             )}
 
             {activeTab === "appearance" && (
-              <Card title="Preferencias visuales" subtitle="Personalización institucional (simulada)">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <label className="text-sm font-medium text-slate-200">Tema</label>
-                    <select
-                      className={inputDark}
-                      value={prefs.theme}
-                      onChange={(e) => setPrefs({ ...prefs, theme: e.target.value })}
-                    >
-                      <option>Oscuro</option>
-                      <option>Claro</option>
-                      <option>Automático</option>
-                    </select>
-                    <p className="text-xs text-slate-500 mt-2">El módulo está en tema oscuro.</p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <label className="text-sm font-medium text-slate-200">Densidad</label>
-                    <div className="mt-2 flex gap-2">
-                      {["Compacta", "Normal", "Amplia"].map((d) => (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => setPrefs({ ...prefs, density: d })}
-                          className={`px-3 py-2 rounded-xl border transition text-sm ${
-                            prefs.density === d
-                              ? "bg-[#f0c02f] text-black border-[#f0c02f]"
-                              : "border-slate-600 hover:bg-slate-800 text-slate-200"
-                          }`}
-                        >
-                          {d}
-                        </button>
-                      ))}
+              <Card
+                title="Preferencias del sistema"
+                subtitle="Configuración institucional almacenada en base de datos"
+              >
+                {loadingConfig ? (
+                  <p className="text-slate-400">Cargando configuración...</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2 p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                      <label className="text-sm font-medium text-slate-200">
+                        Nombre de la institución
+                      </label>
+                      <input
+                        type="text"
+                        className={inputDark}
+                        value={prefs.institution_name}
+                        onChange={(e) =>
+                          setPrefs({
+                            ...prefs,
+                            institution_name: e.target.value,
+                          })
+                        }
+                        placeholder="Ingresa el nombre de la institución"
+                      />
                     </div>
-                  </div>
 
-                  <div className="md:col-span-2 p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <label className="text-sm font-medium text-slate-200">Acento institucional</label>
+                    <div className="md:col-span-2 p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                      <label className="text-sm font-medium text-slate-200">
+                        Domicilio
+                      </label>
+                      <input
+                        type="text"
+                        className={inputDark}
+                        value={prefs.address}
+                        onChange={(e) =>
+                          setPrefs({ ...prefs, address: e.target.value })
+                        }
+                        placeholder="Ingresa el domicilio"
+                      />
+                    </div>
 
-                    <div className="mt-2 flex flex-wrap gap-3">
-                      {["Amarillo", "Azul Marino"].map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setPrefs({ ...prefs, accent: c })}
-                          className={`px-4 py-2 rounded-xl border transition text-sm flex items-center gap-2 ${
-                            prefs.accent === c
-                              ? c === "Amarillo"
-                                ? "bg-[#f0c02f] text-black border-[#f0c02f]"
-                                : "bg-[#141428] text-white border-[#1a1a32]"
-                              : "border-slate-600 hover:bg-slate-800 text-slate-200"
-                          }`}
-                        >
-                          <span
-                            className={`w-3 h-3 rounded-full ${
-                              c === "Amarillo" ? "bg-[#f0c02f]" : "bg-[#1a1a32]"
+                    <div className="md:col-span-2 p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                      <label className="text-sm font-medium text-slate-200">
+                        Teléfono
+                      </label>
+                      <input
+                        type="text"
+                        className={inputDark}
+                        value={prefs.phone}
+                        onChange={(e) =>
+                          setPrefs({ ...prefs, phone: e.target.value })
+                        }
+                        placeholder="Ingresa el teléfono"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                      <label className="text-sm font-medium text-slate-200">
+                        Acento institucional
+                      </label>
+
+                      <div className="mt-2 flex flex-wrap gap-3">
+                        {["Amarillo", "Azul Marino"].map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setPrefs({ ...prefs, accent: c })}
+                            className={`px-4 py-2 rounded-xl border transition text-sm flex items-center gap-2 ${
+                              prefs.accent === c
+                                ? c === "Amarillo"
+                                  ? "bg-[#f0c02f] text-black border-[#f0c02f]"
+                                  : "bg-[#141428] text-white border-[#1a1a32]"
+                                : "border-slate-600 hover:bg-slate-800 text-slate-200"
                             }`}
-                          />
-                          {c}
-                        </button>
-                      ))}
+                          >
+                            <span
+                              className={`w-3 h-3 rounded-full ${
+                                c === "Amarillo"
+                                  ? "bg-[#f0c02f]"
+                                  : "bg-[#1a1a32]"
+                              }`}
+                            />
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+
+                      <p className="text-xs text-slate-500 mt-2">
+                        Define el color de acento del módulo.
+                      </p>
                     </div>
 
-                    <p className="text-xs text-slate-500 mt-2">
-                      Define el color de acento (botones, selección y estados activos).
-                    </p>
+                    <div className="md:col-span-2 mt-2 p-4 rounded-2xl border border-slate-700 bg-slate-800">
+                      <div className="text-sm font-medium text-white">
+                        Vista previa
+                      </div>
+                      <p className="text-sm mt-2 text-slate-300">
+                        <span className="font-medium text-slate-100">
+                          Institución:
+                        </span>{" "}
+                        {prefs.institution_name || "Sin nombre"}
+                      </p>
+                      <p className="text-sm mt-1 text-slate-300">
+                        <span className="font-medium text-slate-100">
+                          Domicilio:
+                        </span>{" "}
+                        {prefs.address || "Sin domicilio"}
+                      </p>
+                      <p className="text-sm mt-1 text-slate-300">
+                        <span className="font-medium text-slate-100">
+                          Teléfono:
+                        </span>{" "}
+                        {prefs.phone || "Sin teléfono"}
+                      </p>
+
+                      <button
+                        className={`mt-4 px-4 py-2 rounded-xl transition ${A.button}`}
+                      >
+                        Botón principal
+                      </button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="mt-5 p-4 rounded-2xl border border-slate-700 bg-slate-800">
-                  <div className="text-sm font-medium text-white">Vista previa</div>
-
-                  <button className={`mt-3 px-4 py-2 rounded-xl transition ${A.button}`}>
-                    Botón principal
-                  </button>
-
-                  <p className="text-sm mt-2 text-slate-300">
-                    Dominante: <span className="font-medium text-slate-100">Azul Marino</span> ·
-                    Acento: <span className={`font-medium ${A.text}`}>{prefs.accent}</span>
-                  </p>
-                </div>
+                )}
               </Card>
             )}
 
             {activeTab === "notifications" && (
-              <Card title="Notificaciones" subtitle="Alertas del CRM (simulado)">
+              <Card
+                title="Notificaciones"
+                subtitle="Alertas del CRM (simulado)"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { key: "email", label: "Email", desc: "Seguimiento y avisos" },
-                    { key: "whatsapp", label: "WhatsApp", desc: "Recordatorios rápidos" },
-                    { key: "push", label: "Push", desc: "Alertas en el panel" },
+                    {
+                      key: "email",
+                      label: "Email",
+                      desc: "Seguimiento y avisos",
+                    },
+                    {
+                      key: "whatsapp",
+                      label: "WhatsApp",
+                      desc: "Recordatorios rápidos",
+                    },
+                    {
+                      key: "push",
+                      label: "Push",
+                      desc: "Alertas en el panel",
+                    },
                   ].map((n) => (
-                    <div key={n.key} className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
+                    <div
+                      key={n.key}
+                      className="p-4 rounded-2xl border border-slate-700 bg-slate-900"
+                    >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-medium text-white">{n.label}</div>
-                          <div className="text-xs text-slate-500 mt-1">{n.desc}</div>
+                          <div className="font-medium text-white">
+                            {n.label}
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            {n.desc}
+                          </div>
                         </div>
                         <Switch
                           checked={notifs[n.key]}
                           accent={prefs.accent}
-                          onClick={() => setNotifs({ ...notifs, [n.key]: !notifs[n.key] })}
+                          onClick={() =>
+                            setNotifs({
+                              ...notifs,
+                              [n.key]: !notifs[n.key],
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -449,11 +700,15 @@ export default function Settings() {
 
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900">
-                    <label className="text-sm font-medium text-slate-200">Frecuencia</label>
+                    <label className="text-sm font-medium text-slate-200">
+                      Frecuencia
+                    </label>
                     <select
                       className={inputDark}
                       value={notifs.frequency}
-                      onChange={(e) => setNotifs({ ...notifs, frequency: e.target.value })}
+                      onChange={(e) =>
+                        setNotifs({ ...notifs, frequency: e.target.value })
+                      }
                     >
                       <option>Diaria</option>
                       <option>Semanal</option>
@@ -463,7 +718,9 @@ export default function Settings() {
 
                   <div className="p-4 rounded-2xl border border-slate-700 bg-slate-900 flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-white">Resumen semanal</div>
+                      <div className="font-medium text-white">
+                        Resumen semanal
+                      </div>
                       <div className="text-xs text-slate-500 mt-1">
                         Reporte automático para coordinación
                       </div>
@@ -471,18 +728,28 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       className="w-5 h-5"
-                      style={{ accentColor: prefs.accent === "Amarillo" ? "#f0c02f" : "#1a1a32" }}
+                      style={{
+                        accentColor:
+                          prefs.accent === "Amarillo"
+                            ? INST.yellow
+                            : INST.navy,
+                      }}
                       checked={notifs.weekly}
-                      onChange={(e) => setNotifs({ ...notifs, weekly: e.target.checked })}
+                      onChange={(e) =>
+                        setNotifs({ ...notifs, weekly: e.target.checked })
+                      }
                     />
                   </div>
                 </div>
 
-                {!notifs.email && (
+                {notifs.email && (
                   <div className="mt-4 p-4 rounded-2xl border border-rose-900/40 bg-rose-950/30">
-                    <div className="text-sm font-medium text-rose-200">Validación</div>
+                    <div className="text-sm font-medium text-rose-200">
+                      Validación
+                    </div>
                     <div className="text-sm text-rose-200/90 mt-1">
-                      Recomendación: activa Email para notificaciones críticas del proceso.
+                      Recomendación: activa Email para notificaciones críticas
+                      del proceso.
                     </div>
                   </div>
                 )}
