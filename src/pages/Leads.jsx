@@ -1,38 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEye, FiX } from "react-icons/fi";
 import CRMLayout from "../layouts/CRMLayout";
 import Card from "../components/Card";
 
-const leadsData = [
-  { id: 1, nombre: "Carlos Ramírez", carrera: "Ingeniería en Software", telefono: "9841234567", correo: "carlos@email.com", estado: "Prospecto", asesor: "María López" },
-  { id: 2, nombre: "Ana Torres", carrera: "Administración", telefono: "9847654321", correo: "ana@email.com", estado: "Contactado", asesor: "Luis Gómez" },
-  { id: 3, nombre: "Jorge Díaz", carrera: "Derecho", telefono: "9841112233", correo: "jorge@email.com", estado: "Confirmado", asesor: "María López" },
-  { id: 4, nombre: "Fernanda Ruiz", carrera: "Pedagogía", telefono: "9844445566", correo: "fer@email.com", estado: "Inscrito", asesor: "Luis Gómez" },
-];
-
 const estadoColors = {
-  Prospecto: "bg-gray-600/20 text-gray-300 border border-gray-500",
-  Contactado: "bg-blue-600 text-white",
-  Confirmado: "bg-yellow-500 text-black",
-  Inscrito: "bg-green-600 text-white",
+  Prospect: "bg-gray-600/20 text-gray-300 border border-gray-500",
+  Contacted: "bg-blue-600 text-white",
+  Confirmed: "bg-yellow-500 text-black",
+  Enrolled: "bg-green-600 text-white",
 };
 
 function Leads() {
+  const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("Todos");
   const [pagina, setPagina] = useState(1);
   const [leadSeleccionado, setLeadSeleccionado] = useState(null);
 
   const leadsPorPagina = 10;
+  //obtener los datos (leads) del backend
+  useEffect(() => {
+    fetch("http://localhost:3000/api/leads")
+      .then(res => res.json())
+      .then(data => setLeads(data))
+      .then(err => console.error(err));
+  }, []);
 
-  const filteredLeads = leadsData
+  const filteredLeads = leads
     .filter((lead) =>
-      `${lead.nombre} ${lead.asesor} ${lead.carrera}`
+      `${lead.full_name} ${lead.advisor} ${lead.program_interest}`
         .toLowerCase()
         .includes(search.toLowerCase())
     )
     .filter((lead) =>
-      estadoFiltro === "Todos" ? true : lead.estado === estadoFiltro
+      estadoFiltro === "Todos" ? true : <lead className="status"></lead> === estadoFiltro
     );
 
   const totalPaginas = Math.ceil(filteredLeads.length / leadsPorPagina);
@@ -115,18 +116,18 @@ function Leads() {
                       key={lead.id}
                       className="hover:bg-[#2e2e5a] transition"
                     >
-                      <td className="p-4">{lead.nombre}</td>
-                      <td className="p-4 text-gray-300">{lead.carrera}</td>
-                      <td className="p-4 text-center">{lead.telefono}</td>
-                      <td className="p-4 text-gray-300">{lead.correo}</td>
+                      <td className="p-4">{lead.full_name}</td>
+                      <td className="p-4 text-gray-300">{lead.program_interest}</td>
+                      <td className="p-4 text-center">{lead.phone}</td>
+                      <td className="p-4 text-gray-300">{lead.email}</td>
                       <td className="p-4 text-center">
                         <span
-                          className={`px-4 py-1 rounded-full text-xs font-bold ${estadoColors[lead.estado]}`}
+                          className={`px-4 py-1 rounded-full text-xs font-bold ${estadoColors[lead.status]}`}
                         >
-                          {lead.estado}
+                          {lead.status}
                         </span>
                       </td>
-                      <td className="p-4">{lead.asesor}</td>
+                      <td className="p-4">{lead.advisor}</td>
                       <td className="p-4 text-center">
                         <button
                           onClick={() => setLeadSeleccionado(lead)}
@@ -178,34 +179,34 @@ function Leads() {
               <div className="grid md:grid-cols-2 gap-6 text-gray-300">
                 <div>
                   <p className="text-sm text-gray-400">Nombre</p>
-                  <p className="font-semibold text-white">{leadSeleccionado.nombre}</p>
+                  <p className="font-semibold text-white">{leadSeleccionado.full_name}</p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">Carrera</p>
-                  <p className="font-semibold text-white">{leadSeleccionado.carrera}</p>
+                  <p className="font-semibold text-white">{leadSeleccionado.program_interest}</p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">Teléfono</p>
-                  <p className="font-semibold text-white">{leadSeleccionado.telefono}</p>
+                  <p className="font-semibold text-white">{leadSeleccionado.phone}</p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">Correo</p>
-                  <p className="font-semibold text-white">{leadSeleccionado.correo}</p>
+                  <p className="font-semibold text-white">{leadSeleccionado.email}</p>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">Estado</p>
                   <span className={`px-4 py-1 rounded-full text-xs font-bold ${estadoColors[leadSeleccionado.estado]}`}>
-                    {leadSeleccionado.estado}
+                    {leadSeleccionado.status}
                   </span>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-400">Asesor asignado</p>
-                  <p className="font-semibold text-white">{leadSeleccionado.asesor}</p>
+                  <p className="font-semibold text-white">{leadSeleccionado.advisor}</p>
                 </div>
               </div>
             </div>
