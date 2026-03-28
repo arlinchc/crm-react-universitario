@@ -13,9 +13,39 @@ function Reports() {
   const [selectedAsesor, setSelectedAsesor] = useState(null);  
 
   useEffect(() => {
-  setAsesores(asesoresMock);
-  setSelectedAsesor(asesoresMock[0]);
-}, []);
+  if (!selectedAsesor) return;
+
+  // KPI
+  fetch(`http://localhost:3000/api/movements/kpi?advisorId=${selectedAsesor.id}`)
+    .then(res => res.json())
+    .then(data => {
+      setSelectedAsesor(prev => ({
+        ...prev,
+        prospectos: Number(data.prospectos),
+        inscritos: Number(data.inscritos)
+      }));
+    });
+
+  // Tabla
+  fetch(`http://localhost:3000/api/movements?advisorId=${selectedAsesor.id}`)
+    .then(res => res.json())
+    .then(data => {
+      const prospectosDetalle = data.map(m => ({
+        id: m.id,
+        nombre: `Lead ${m.id_lead}`,
+        telefono: "N/A",
+        programa: "N/A",
+        fecha: m.created_at.split("T")[0],
+        estado: m.status
+      }));
+
+      setSelectedAsesor(prev => ({
+        ...prev,
+        prospectosDetalle
+      }));
+    });
+
+  }, [selectedAsesor?.id]);
 
   return (
     <CRMLayout>
