@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LeadFormModal from "../components/LeadFormModal";
 import { useNavigate } from "react-router-dom";
 
 /* ─────────────────────────────────────────
@@ -200,7 +201,8 @@ const STEPS = [
 /* ─────────────────────────────────────────
    SECCIONES
 ───────────────────────────────────────── */
-function Hero({ onLogin }) {
+function Hero({ onLogin, onProspecto }) {
+
   return (
     <section
       style={{
@@ -456,45 +458,37 @@ function Hero({ onLogin }) {
             }}
           >Acceder al CRM</button>
 
-          <a
-            href="#beneficios"
-            style={{
-              background: "transparent",
-              color: "#fff",
-              border: "1px solid rgba(255,255,255,0.18)",
-              borderRadius: 12,
-              padding: "0.9rem 2rem",
-              fontFamily: "var(--font-body)",
-              fontWeight: 500,
-              fontSize: "1rem",
-              cursor: "pointer",
-              textDecoration: "none",
-              transition: "all 0.25s",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)";
-            }}
-          >
-            Ver beneficios
-            <svg
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </a>
+          <button
+  onClick={onProspecto}
+  style={{
+    background: "transparent",
+    color: "#fff",
+    border: "1px solid rgba(255,255,255,0.18)",
+    borderRadius: 12,
+    padding: "0.9rem 2rem",
+    fontFamily: "var(--font-body)",
+    fontWeight: 500,
+    fontSize: "1rem",
+    cursor: "pointer",
+    transition: "all 0.25s",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+    e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.background = "transparent";
+    e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)";
+  }}
+>
+  Quiero informes
+  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+</button>
         </div>
 
         {/* Stats */}
@@ -945,6 +939,7 @@ function AccessCTA({ onLogin }) {
           Accede al sistema con tus credenciales institucionales y empieza a
           gestionar prospectos con toda la precisión que UNID merece.
         </p>
+        <div style={{ display: "flex", justifyContent: "center" }}>
         <button
           onClick={onLogin}
           style={{
@@ -973,6 +968,7 @@ function AccessCTA({ onLogin }) {
               "0 4px 30px rgba(240,192,47,0.35)";
           }}
         >Acceder al CRM</button>
+        </div>
         <p
           style={{
             marginTop: "1.5rem",
@@ -1070,6 +1066,7 @@ function Footer() {
    - Export default directo
 ───────────────────────────────────────── */
 function Landing() {
+  const [modalOpen, setModalOpen] = useState(false);
   useEffect(() => {
     const tag = document.createElement("style");
     tag.innerHTML = GLOBAL_STYLES;
@@ -1079,10 +1076,12 @@ function Landing() {
 
   const navigate = useNavigate();
   const handleLogin = () => navigate("/login");
+  const handleProspecto = () => setModalOpen(true);
 
   return (
     <div>
-       <Hero onLogin={handleLogin} />
+      <LeadFormModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <Hero onLogin={handleLogin} onProspecto={handleProspecto} />  {/* ← agrega onProspecto */}
       <Benefits />
       <HowItWorks />
       <AccessCTA onLogin={handleLogin} />
