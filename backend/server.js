@@ -36,3 +36,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CRM API running on port ${PORT}`);
 });
+const movementsRoutes = require("./routes/movementsRoutes");
+
+app.use("/api/movements", movementsRoutes);
