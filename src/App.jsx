@@ -9,7 +9,10 @@ import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Teachers from "./pages/Teachers";
+<<<<<<< HEAD
 import ProspectDetail from "./pages/ProspectDetail";
+=======
+>>>>>>> feature-Ulises
 import Settings from "./pages/Settings";
 import Asesores from "./pages/Asesores";
 import Login from "./pages/Login";
@@ -43,6 +46,7 @@ function App() {
           }
         />
         <Route
+<<<<<<< HEAD
           path="/prospect/:id"
           element={
             <ProtectedRoute>
@@ -51,6 +55,8 @@ function App() {
           }
         />
         <Route
+=======
+>>>>>>> feature-Ulises
           path="/teachers"
           element={
             <ProtectedRoute>
