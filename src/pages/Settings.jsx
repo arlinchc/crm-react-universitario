@@ -133,7 +133,7 @@ export default function Settings() {
   useEffect(() => {
     const loadConfiguration = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/configuration");
+        const response = await fetch("https://crm-react-universitario.onrender.com/api/configuration");
         if (!response.ok) {
           throw new Error("Error loading configuration");
         }
@@ -157,7 +157,7 @@ export default function Settings() {
 
     const loadStatuses = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/lead-statuses");
+        const response = await fetch("https://crm-react-universitario.onrender.com/api/lead-statuses");
         if (!response.ok) {
           throw new Error("Error loading statuses");
         }
@@ -186,7 +186,7 @@ export default function Settings() {
   const saveSettings = async () => {
     try {
       const configResponse = await fetch(
-        "http://localhost:3000/api/configuration",
+        "https://crm-react-universitario.onrender.com/api/configuration",
         {
           method: "POST",
           headers: {
@@ -205,7 +205,7 @@ export default function Settings() {
       }
 
       const statesToUpdate = states.map((state) =>
-        fetch(`http://localhost:3000/api/lead-statuses/${state.id}`, {
+        fetch(`https://crm-react-universitario.onrender.com/api/lead-statuses/${state.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -232,7 +232,7 @@ export default function Settings() {
     if (!name) return;
 
     try {
-      const response = await fetch("http://localhost:3000/api/lead-statuses", {
+      const response = await fetch("https://crm-react-universitario.onrender.com/api/lead-statuses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

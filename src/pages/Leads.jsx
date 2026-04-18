@@ -3,7 +3,7 @@ import { FiSearch, FiEye, FiX } from "react-icons/fi";
 import CRMLayout from "../layouts/CRMLayout";
 import Card from "../components/Card";
 
-const API_URL = "http://localhost:3000/api/leads";
+const API_URL = "https://crm-react-universitario.onrender.com/api/leads";
 
 const estadoColors = {
   Prospecto: "bg-gray-600/20 text-gray-300 border border-gray-500",

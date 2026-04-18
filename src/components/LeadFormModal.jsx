@@ -39,7 +39,7 @@ function LeadFormModal({ isOpen, onClose }) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/api/leads", {
+      const res = await fetch("https://crm-react-universitario.onrender.com/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

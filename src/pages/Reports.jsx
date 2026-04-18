@@ -5,8 +5,8 @@ import ProgressLineChart from "../components/Reports/ProgressLineChart";
 import AsesorTable from "../components/Reports/AsesorTable";
 import { useState, useEffect } from "react";
 
-const API_ADVISORS = "http://localhost:3000/api/advisors";
-const API_MOVEMENTS = "http://localhost:3000/api/movements";
+const API_ADVISORS = "https://crm-react-universitario.onrender.com/api/advisors";
+const API_MOVEMENTS = "https://crm-react-universitario.onrender.com/api/movements";
 
 function Reports() {
   const [asesores, setAsesores] = useState([]);
