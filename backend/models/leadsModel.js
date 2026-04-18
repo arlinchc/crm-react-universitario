@@ -1,6 +1,9 @@
 const pool = require("../db/connection");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> feature-axel
 const getAllLeads = async () => {
   const result = await pool.query(
     "SELECT * FROM leads ORDER BY id DESC"
@@ -9,6 +12,7 @@ const getAllLeads = async () => {
 };
 
 const createLead = async (lead) => {
+<<<<<<< HEAD
 
   const { full_name, program_interest, phone, email, status, advisor } = lead;
 
@@ -17,6 +21,24 @@ const createLead = async (lead) => {
       (full_name, program_interest, phone, email, status, advisor)
        VALUES ($1,$2,$3,$4,$5,$6)
       RETURNING *`,
+=======
+  const {
+    full_name,
+    program_interest,
+    phone,
+    email,
+    status,
+    advisor,
+  } = lead;
+
+  const result = await pool.query(
+    `
+    INSERT INTO leads
+    (full_name, program_interest, phone, email, status, advisor)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING *
+    `,
+>>>>>>> feature-axel
     [full_name, program_interest, phone, email, status, advisor]
   );
 
@@ -25,6 +47,7 @@ const createLead = async (lead) => {
 
 module.exports = {
   getAllLeads,
+<<<<<<< HEAD
   createLead
 };
 =======
@@ -66,3 +89,7 @@ exports.updateStatus = async (id, status) => {
   return r.rows[0] ? normalize(r.rows[0]) : null;
 };
 >>>>>>> feature-Ulises
+=======
+  createLead,
+};
+>>>>>>> feature-axel

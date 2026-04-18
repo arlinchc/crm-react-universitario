@@ -4,28 +4,35 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-// Rutas
-const leadsRoutes = require("./routes/leadsRoutes");
-
 // Crear app
 const app = express();
 
-// Middlewares
+// ================== MIDDLEWARES ==================
 app.use(cors());
 app.use(express.json());
 
-// Rutas
+// ================== ROUTES ==================
+
+// Leads
+const leadsRoutes = require("./routes/leadsRoutes");
 app.use("/api/leads", leadsRoutes);
 
-// Ruta base (opcional pero útil)
+// Configuración
+const configurationRoutes = require("./routes/configurationRoutes");
+app.use("/api/configuration", configurationRoutes);
+
+// Estados de Lead
+const leadStatusRoutes = require("./routes/leadStatusRoutes");
+app.use("/api/lead-statuses", leadStatusRoutes);
+
+// ================== ROOT ==================
 app.get("/", (req, res) => {
   res.send("CRM University API funcionando 🚀");
 });
 
-// Puerto
+// ================== SERVER ==================
 const PORT = process.env.PORT || 3000;
 
-// Servidor
 app.listen(PORT, () => {
   console.log(`CRM API running on port ${PORT}`);
 });

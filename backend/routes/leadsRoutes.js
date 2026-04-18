@@ -1,6 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 //Maneja las solicitudes HTTP para leads, utilizando la lógica definida
 //  en leadsModel.js
+=======
+//Maneja las solicitudes HTTP para leads, utilizando la logica definida
+// en leadsModel.js
+>>>>>>> feature-axel
 const express = require("express");
 const router = express.Router();
 
@@ -8,6 +13,7 @@ const leadsController = require("../controllers/leadsController");
 
 router.get("/", leadsController.getLeads);
 router.post("/", leadsController.createLead);
+<<<<<<< HEAD
 =======
 const router = require("express").Router();
 const ctrl = require("../controllers/leadsController");
@@ -23,3 +29,8 @@ router.patch("/:id/status", ctrl.updateStatus);
 >>>>>>> feature-Ulises
 
 module.exports = router;
+=======
+
+module.exports = router;
+
+>>>>>>> feature-axel

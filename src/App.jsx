@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CRMLayout from "./layouts/CRMLayout";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -33,7 +34,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+                <Dashboard />
             </ProtectedRoute>
           }
         />
@@ -41,7 +42,7 @@ function App() {
           path="/leads"
           element={
             <ProtectedRoute>
-              <Leads />
+                <Leads />
             </ProtectedRoute>
           }
         />
@@ -50,7 +51,7 @@ function App() {
           path="/prospect/:id"
           element={
             <ProtectedRoute>
-              <ProspectDetail />
+                <ProspectDetail />
             </ProtectedRoute>
           }
         />
@@ -60,7 +61,7 @@ function App() {
           path="/teachers"
           element={
             <ProtectedRoute>
-              <Teachers />
+                <Teachers />
             </ProtectedRoute>
           }
         />
@@ -68,7 +69,7 @@ function App() {
           path="/asesores"
           element={
             <ProtectedRoute>
-              <Asesores />
+                <Asesores />
             </ProtectedRoute>
           }
         />
@@ -76,7 +77,7 @@ function App() {
           path="/reports"
           element={
             <ProtectedRoute>
-              <Reports />
+                <Reports />
             </ProtectedRoute>
           }
         />
@@ -84,7 +85,9 @@ function App() {
           path="/settings"
           element={
             <ProtectedRoute>
-              <Settings />
+              <CRMLayout>
+                <Settings />
+              </CRMLayout>
             </ProtectedRoute>
           }
         />
