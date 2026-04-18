@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import { FiSearch, FiPlus, FiEye, FiX } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { FiSearch, FiEye, FiX } from "react-icons/fi";
 import CRMLayout from "../layouts/CRMLayout";
 import Card from "../components/Card";
 
@@ -13,7 +13,6 @@ const estadoColors = {
 };
 
 function Leads() {
-  // ✅ SOLO UN ESTADO DE LEADS
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("Todos");
@@ -33,14 +32,13 @@ function Leads() {
         return res.json();
       })
       .then((data) => {
-        // ⚠️ MAPEAR CORRECTO
         const mapped = data.map((lead) => ({
           id: lead.id,
           nombre: lead.full_name,
           carrera: lead.program_interest,
           telefono: lead.phone,
           correo: lead.email,
-          estado: lead.status, // ya viene en español por el backend
+          estado: lead.status,
           asesor: lead.advisor,
         }));
 
@@ -58,7 +56,7 @@ function Leads() {
 
   const filteredLeads = leads
     .filter((l) =>
-      `${l.nombre} ${l.asesor} ${l.carrera}`
+      `${l.nombre} ${l.asesor || ""} ${l.carrera || ""}`
         .toLowerCase()
         .includes(search.toLowerCase())
     )
@@ -80,23 +78,17 @@ function Leads() {
     setUpdatingStatus(true);
 
     try {
-      const res = await fetch(
-        `${API_URL}/${leadSeleccionado.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: nuevoEstado }),
-        }
-      );
+      const res = await fetch(`${API_URL}/${leadSeleccionado.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nuevoEstado }),
+      });
 
       const updated = await res.json();
 
-      // actualizar UI
       setLeads((prev) =>
         prev.map((l) =>
-          l.id === updated.id
-            ? { ...l, estado: updated.status }
-            : l
+          l.id === updated.id ? { ...l, estado: updated.status } : l
         )
       );
 
@@ -120,54 +112,112 @@ function Leads() {
         </h1>
 
         <Card>
-          <div className="bg-[#1f1f3d] p-6 rounded-xl">
+          <div className="bg-[#1f1f3d] p-6 rounded-xl border border-[#2e2e5a]">
 
             {/* LOADING */}
-            {loading && <p>Cargando...</p>}
-            {error && <p>{error}</p>}
+            {loading && (
+              <p className="text-center text-gray-400 py-6">
+                Cargando prospectos...
+              </p>
+            )}
+
+            {/* ERROR */}
+            {error && (
+              <p className="text-center text-red-400 py-6">{error}</p>
+            )}
 
             {!loading && !error && (
               <>
-                {/* BUSQUEDA */}
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar..."
-                  className="mb-4 p-2 w-full"
-                />
+                {/* BUSQUEDA + FILTRO */}
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <input
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setPagina(1);
+                    }}
+                    placeholder="Buscar..."
+                    className="p-2 w-full md:w-72 rounded bg-[#24244a] text-white border border-gray-600"
+                  />
+
+                  <select
+                    value={estadoFiltro}
+                    onChange={(e) => {
+                      setEstadoFiltro(e.target.value);
+                      setPagina(1);
+                    }}
+                    className="p-2 rounded bg-[#24244a] text-white border border-gray-600"
+                  >
+                    <option value="Todos">Todos</option>
+                    <option value="Prospecto">Prospecto</option>
+                    <option value="Contactado">Contactado</option>
+                    <option value="Confirmado">Confirmado</option>
+                    <option value="Inscrito">Inscrito</option>
+                  </select>
+                </div>
 
                 {/* TABLA */}
-                <table className="w-full text-white">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Carrera</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {leadsMostrados.map((l) => (
-                      <tr key={l.id}>
-                        <td>{l.nombre}</td>
-                        <td>{l.carrera}</td>
-                        <td>
-                          <span className={estadoColors[l.estado]}>
-                            {l.estado}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => setLeadSeleccionado(l)}
-                          >
-                            <FiEye />
-                          </button>
-                        </td>
+                <div className="overflow-hidden rounded-xl border border-[#2e2e5a]">
+                  <table className="w-full text-left text-white border-collapse">
+                    <thead className="bg-[#24244a] text-[#f0c02f]">
+                      <tr>
+                        <th className="p-4">Nombre</th>
+                        <th className="p-4">Carrera</th>
+                        <th className="p-4 text-center">Estado</th>
+                        <th className="p-4 text-center">Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+
+                    <tbody className="divide-y divide-[#2e2e5a] bg-[#1f1f3d]">
+                      {leadsMostrados.map((l) => (
+                        <tr
+                          key={l.id}
+                          className="hover:bg-[#2e2e5a] transition"
+                        >
+                          <td className="p-4">{l.nombre}</td>
+
+                          <td className="p-4 text-gray-300">
+                            {l.carrera}
+                          </td>
+
+                          <td className="p-4 text-center">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${estadoColors[l.estado]}`}
+                            >
+                              {l.estado}
+                            </span>
+                          </td>
+
+                          <td className="p-4 text-center">
+                            <button
+                              onClick={() => setLeadSeleccionado(l)}
+                              className="bg-[#f0c02f] p-2 rounded-lg hover:bg-yellow-400 transition"
+                            >
+                              <FiEye className="text-[#1a1a32]" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* PAGINACIÓN */}
+                <div className="flex justify-center mt-6 gap-2">
+                  {[...Array(totalPaginas)].map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setPagina(index + 1)}
+                      className={`w-10 h-10 rounded-lg font-bold ${
+                        pagina === index + 1
+                          ? "bg-[#f0c02f] text-[#1a1a32]"
+                          : "bg-[#24244a] text-white"
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
               </>
             )}
           </div>
@@ -175,22 +225,32 @@ function Leads() {
 
         {/* MODAL */}
         {leadSeleccionado && (
-          <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-            <div className="bg-white p-6 rounded">
-              <h2>{leadSeleccionado.nombre}</h2>
+          <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
+            <div className="bg-[#1a1a32] p-6 rounded-xl border border-[#2e2e5a] w-full max-w-md">
+              <h2 className="text-xl font-bold text-white mb-4">
+                {leadSeleccionado.nombre}
+              </h2>
 
-              {["Prospecto", "Contactado", "Confirmado", "Inscrito"].map((e) => (
-                <button
-                  key={e}
-                  disabled={updatingStatus}
-                  onClick={() => handleStatusChange(e)}
-                >
-                  {e}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {["Prospecto", "Contactado", "Confirmado", "Inscrito"].map(
+                  (e) => (
+                    <button
+                      key={e}
+                      disabled={updatingStatus}
+                      onClick={() => handleStatusChange(e)}
+                      className="px-3 py-2 rounded bg-white text-black text-sm font-semibold"
+                    >
+                      {e}
+                    </button>
+                  )
+                )}
+              </div>
 
-              <button onClick={() => setLeadSeleccionado(null)}>
-                <FiX />
+              <button
+                onClick={() => setLeadSeleccionado(null)}
+                className="text-gray-400 hover:text-white"
+              >
+                <FiX size={22} />
               </button>
             </div>
           </div>
