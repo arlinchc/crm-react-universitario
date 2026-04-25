@@ -420,4 +420,3 @@ function Leads() {
 }
 
 export default Leads;
-export default Leads
