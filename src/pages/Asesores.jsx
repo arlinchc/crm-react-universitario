@@ -1,182 +1,221 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import CRMLayout from "../layouts/CRMLayout";
 
-const asesoresIniciales = [
-  {
-    id: 1,
-    nombre: "Laura Martínez",
-    carrera: "Ingeniería en Sistemas",
-    prospectos: 45,
-    conversion: 62,
-    foto: "https://via.placeholder.com/150"
-  },
-  {
-    id: 2,
-    nombre: "Carlos Pérez",
-    carrera: "Administración",
-    prospectos: 32,
-    conversion: 48,
-    foto: "https://via.placeholder.com/150"
-  },
-  {
-    id: 3,
-    nombre: "Ana Gómez",
-    carrera: "Contaduría",
-    prospectos: 27,
-    conversion: 55,
-    foto: "https://via.placeholder.com/150"
-  }
-];
+const INITIAL_STATE = {
+  nombre: "",
+  email: "",
+  phone: "",
+  carrera: ""
+};
 
 export default function Asesores() {
-  const [asesores, setAsesores] = useState(asesoresIniciales);
-  const [filtroCarrera, setFiltroCarrera] = useState("Todas");
+  const [asesores, setAsesores] = useState([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [nuevoAsesor, setNuevoAsesor] = useState(INITIAL_STATE);
+  const [foto, setFoto] = useState(null);
+  const [cargando, setCargando] = useState(false);
 
-  const [nuevoAsesor, setNuevoAsesor] = useState({
-    nombre: "",
-    carrera: "Ingeniería en Sistemas"
-  });
+  // 🔹 Obtener asesores
+  const cargarAsesores = useCallback(async () => {
+    try {
+      const response = await fetch("https://crm-react-universitario.onrender.com/api/advisors");
+      const data = await response.json();
+      setAsesores(data);
+    } catch (error) {
+      console.error("Error cargando asesores", error);
+    }
+  }, []);
 
-  const asesoresFiltrados =
-    filtroCarrera === "Todas"
-      ? asesores
-      : asesores.filter((a) => a.carrera === filtroCarrera);
+  useEffect(() => {
+    cargarAsesores();
+  }, [cargarAsesores]);"
 
-  const agregarAsesor = () => {
-    if (!nuevoAsesor.nombre) return;
+  // 🔹 Guardar asesor con foto
+  const agregarAsesor = async (e) => {
+    e.preventDefault();
+    setCargando(true);
 
-    setAsesores([
-      ...asesores,
-      {
-        id: asesores.length + 1,
-        nombre: nuevoAsesor.nombre,
-        carrera: nuevoAsesor.carrera,
-        prospectos: Math.floor(Math.random() * 40) + 10,
-        conversion: Math.floor(Math.random() * 40) + 40,
-        foto: "https://via.placeholder.com/150"
+    try {
+      const formData = new FormData();
+      formData.append("full_name", nuevoAsesor.nombre);
+      formData.append("email", nuevoAsesor.email);
+      formData.append("phone", nuevoAsesor.phone);
+      formData.append("area", nuevoAsesor.carrera);
+      if (foto) {
+        formData.append("photo", foto);
       }
-    ]);
 
-    setNuevoAsesor({ nombre: "", carrera: "Ingeniería en Sistemas" });
-    setMostrarFormulario(false);
+      const response = await fetch("http://localhost:3000/api/advisors", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Error al guardar");
+
+      await cargarAsesores();
+      setNuevoAsesor(INITIAL_STATE);
+      setFoto(null);
+      setMostrarFormulario(false);
+    } catch (error) {
+      alert("No se pudo guardar el asesor");
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
-    <section
-      className="p-6 min-h-screen"
-      style={{ backgroundColor: "#1a1a32" }}
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            Gestión de Asesores Académicos
-          </h1>
-          <p className="text-sm text-gray-300">
-            Administración visual del equipo de asesores
-          </p>
-        </div>
-
-        <div className="flex gap-3">
-          <select
-            value={filtroCarrera}
-            onChange={(e) => setFiltroCarrera(e.target.value)}
-            className="rounded-lg px-4 py-2 text-sm"
-          >
-            <option value="Todas">Todas</option>
-            <option value="Ingeniería en Sistemas">
-              Ingeniería en Sistemas
-            </option>
-            <option value="Administración">Administración</option>
-            <option value="Contaduría">Contaduría</option>
-          </select>
+    <CRMLayout>
+      <section className="p-6 min-h-screen bg-[#1a1a32]">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Asesores</h1>
+            <p className="text-sm text-gray-300">
+              Información obtenida desde la base de datos
+            </p>
+          </div>
 
           <button
             onClick={() => setMostrarFormulario(true)}
-            className="bg-[#f0c02f] text-[#1a1a32] px-4 py-2 rounded-lg font-medium hover:opacity-90"
+            className="bg-[#f0c02f] hover:bg-[#d4a926] transition-colors text-[#1a1a32] px-4 py-2 rounded-lg font-medium"
           >
             + Agregar asesor
           </button>
         </div>
-      </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {asesoresFiltrados.map((asesor) => (
-          <div
-            key={asesor.id}
-            className="bg-white rounded-xl shadow-md p-5 text-center"
-          >
-            <img
-              src={asesor.foto}
-              className="w-24 h-24 rounded-full mx-auto mb-4"
-            />
-            <h3 className="font-semibold">{asesor.nombre}</h3>
-            <p className="text-sm text-gray-500">{asesor.carrera}</p>
-
-            <div className="mt-4 text-sm">
-              <p>Prospectos: {asesor.prospectos}</p>
-              <p className="text-green-600">
-                Conversión: {asesor.conversion}%
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Modal */}
-      {mostrarFormulario && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-            <h2 className="text-lg font-bold mb-4">
-              Nuevo asesor
-            </h2>
-
-            <input
-              type="text"
-              placeholder="Nombre del asesor"
-              value={nuevoAsesor.nombre}
-              onChange={(e) =>
-                setNuevoAsesor({
-                  ...nuevoAsesor,
-                  nombre: e.target.value
-                })
-              }
-              className="w-full border rounded-lg px-3 py-2 mb-3"
-            />
-
-            <select
-              value={nuevoAsesor.carrera}
-              onChange={(e) =>
-                setNuevoAsesor({
-                  ...nuevoAsesor,
-                  carrera: e.target.value
-                })
-              }
-              className="w-full border rounded-lg px-3 py-2 mb-4"
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {asesores.map((asesor) => (
+            <div
+              key={asesor.id}
+              className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center border border-gray-100"
             >
-              <option>Ingeniería en Sistemas</option>
-              <option>Administración</option>
-              <option>Contaduría</option>
-            </select>
+              {/* Contenedor de Imagen con Fallback */}
+              <div className="w-24 h-24 mb-4 relative">
+                <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden border-2 border-[#f0c02f]">
+                  <img
+                    src={
+                      asesor.photo
+                        ? `http://localhost:3000/uploads/${asesor.photo}`
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(asesor.full_name)}&background=random`
+                    }
+                    alt={asesor.full_name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/150?text=User";
+                    }}
+                  />
+                </div>
+              </div>
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setMostrarFormulario(false)}
-                className="px-4 py-2 text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={agregarAsesor}
-                className="bg-[#1a1a32] text-white px-4 py-2 rounded-lg text-sm"
-              >
-                Guardar
-              </button>
+              {/* Información del Asesor */}
+              <h3 className="text-lg font-bold text-gray-800 leading-tight mb-1">
+                {asesor.full_name}
+              </h3>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-3 bg-blue-50 px-2 py-1 rounded">
+                {asesor.area || "Sin área"}
+              </span>
+              
+              <div className="w-full border-t border-gray-100 pt-3 mt-auto">
+                <p className="text-sm text-gray-600 truncate mb-1">
+                  <span className="opacity-70">📧</span> {asesor.email}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <span className="opacity-70">📞</span> {asesor.phone}
+                </p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      )}
-    </section>
+
+        {/* Modal Formulario */}
+        {mostrarFormulario && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <form
+              onSubmit={agregarAsesor}
+              className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl"
+            >
+              <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Registrar Nuevo Asesor</h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="Ej. Juan Pérez"
+                    value={nuevoAsesor.nombre}
+                    onChange={(e) => setNuevoAsesor({ ...nuevoAsesor, nombre: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f0c02f] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    value={nuevoAsesor.email}
+                    onChange={(e) => setNuevoAsesor({ ...nuevoAsesor, email: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f0c02f] outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                    <input
+                      type="text"
+                      placeholder="9991234567"
+                      value={nuevoAsesor.phone}
+                      onChange={(e) => setNuevoAsesor({ ...nuevoAsesor, phone: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f0c02f] outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Área / Carrera</label>
+                    <input
+                      type="text"
+                      placeholder="Ventas"
+                      value={nuevoAsesor.carrera}
+                      onChange={(e) => setNuevoAsesor({ ...nuevoAsesor, carrera: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#f0c02f] outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Foto de Perfil</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFoto(e.target.files[0])}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f0c02f] file:text-[#1a1a32] hover:file:bg-[#d4a926] cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setMostrarFormulario(false)}
+                  className="px-4 py-2 text-gray-600 font-medium hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={cargando}
+                  className="bg-[#1a1a32] text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-[#2a2a4d] disabled:opacity-50 transition-all"
+                >
+                  {cargando ? "Guardando..." : "Guardar Asesor"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </section>
+    </CRMLayout>
   );
 }
