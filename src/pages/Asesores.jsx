@@ -28,7 +28,7 @@ export default function Asesores() {
 
   useEffect(() => {
     cargarAsesores();
-  }, [cargarAsesores]);"
+  }, [cargarAsesores]);
 
   // 🔹 Guardar asesor con foto
   const agregarAsesor = async (e) => {
