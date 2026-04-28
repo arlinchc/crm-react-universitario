@@ -1,5 +1,12 @@
 import Badge  from '../Badge';
 
+const estadoTraduccion = {
+  Enrolled: "Inscrito",
+  Prospect: "Prospecto",
+  Contacted: "Contactado",
+  Confirmed: "Confirmado",
+};
+
 function AsesorTable({ asesor }) {
   if (!asesor) {
     return (
@@ -52,7 +59,7 @@ function AsesorTable({ asesor }) {
                 </td>
 
                 <td className="px-6 py-4">
-                 <Badge text={item.estado} />
+                 <Badge text={estadoTraduccion[item.estado] || item.estado} />
                 </td>
               </tr>
             ))}

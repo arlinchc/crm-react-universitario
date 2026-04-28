@@ -1,5 +1,7 @@
 // Conectar las rutas con la lógica de la aplicación
 const leadsModel = require("../models/leadsModel");
+const pool = require("../db/connection");
+const { createMovement } = require("../models/movementsModel");
 
 // ================== GET ALL ==================
 const getLeads = async (req, res) => {
@@ -32,6 +34,23 @@ const getLeadById = async (req, res) => {
 const createLead = async (req, res) => {
   try {
     const newLead = await leadsModel.createLead(req.body);
+
+    const advisorResult = await pool.query(
+      "SELECT id FROM advisors WHERE full_name = $1",
+      [newLead.advisor]
+    );
+
+    const advisorId = advisorResult.rows[0]?.id || 1;
+
+    await createMovement(
+      advisorId,
+      newLead.id,
+      newLead.status || "Prospect",
+      newLead.full_name,
+      newLead.phone,
+      newLead.program_interest
+    );
+    
     res.status(201).json(newLead);
   } catch (error) {
     console.error("ERROR CREATE LEAD:", error);
@@ -62,10 +81,33 @@ const updateLead = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    const { id } = req.params;
 
     if (!status) {
       return res.status(400).json({ error: "Status es requerido" });
     }
+
+    const leadResult = await pool.query(
+      "SELECT * FROM leads WHERE id = $1",
+      [id]
+    );
+
+    const lead = leadResult.rows[0];
+
+    if (!lead) {
+      return res.status(404).json({ error: "Lead no encontrado" });
+    }
+
+    const advisorResult = await pool.query(
+      "SELECT id FROM advisors WHERE full_name = $1",
+      [lead.advisor]
+    );
+
+    if (!advisorResult.rows[0]) {
+      console.warn("Advisor no encontrado para lead:", lead.id);
+    }
+
+    const advisorId = advisorResult.rows[0]?.id || 1;
 
     const updated = await leadsModel.updateStatus(
       req.params.id,
@@ -76,6 +118,15 @@ const updateStatus = async (req, res) => {
       return res.status(404).json({ error: "Lead no encontrado" });
     }
 
+    await createMovement(
+      advisorId,
+      lead.id,
+      status,
+      lead.full_name,
+      lead.phone,
+      lead.program_interest
+    );
+    
     res.json(updated);
   } catch (error) {
     console.error("ERROR UPDATE STATUS:", error);

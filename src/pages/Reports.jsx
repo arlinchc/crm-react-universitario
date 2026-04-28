@@ -39,6 +39,7 @@ function Reports() {
     fetch(`${API_MOVEMENTS}/kpi?advisorId=${selectedAsesor.id}`)
       .then((res) => res.json())
       .then((data) => {
+        console.log("KPI DATA:", data); 
         setSelectedAsesor((prev) => ({
           ...prev,
           prospectos: Number(data.prospectos || 0),
@@ -53,8 +54,8 @@ function Reports() {
       .then((data) => {
         const prospectosDetalle = data.map((m) => ({
           id: m.id,
-          nombre: m.full_name || `Lead ${m.id_lead}`,
-          telefono: m.phone || "N/A",
+          nombre: m.lead_name || `Lead ${m.id_lead}`,
+          telefono: m.lead_phone || "N/A",
           programa: m.program_interest || "N/A",
           fecha: m.created_at?.split("T")[0] || "",
           estado: m.status,
