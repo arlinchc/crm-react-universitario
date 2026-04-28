@@ -1,68 +1,44 @@
+import { useEffect, useState } from "react";
 import CRMLayout from "../layouts/CRMLayout";
 import Badge from "../components/Badge";
-import leads from "../data/leads";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Legend,
 } from "recharts";
 
-// DATOS ESTÁTICOS (listos para sustituir por llamadas a API)
+// API
+const API_URL = "https://crm-react-universitario.onrender.com/api/leads";
 
-const kpis = [
-  { label: "Prospectos",  value: 300, cambio: "+12%", tendencia: "up",   fondo: "bg-blue-100",   color: "text-blue-600",   icon: "users"   },
-  { label: "Contactados", value: 150, cambio: "+5%",  tendencia: "up",   fondo: "bg-yellow-100", color: "text-yellow-600", icon: "phone"   },
-  { label: "Confirmados", value: 50,  cambio: "-3%",  tendencia: "down", fondo: "bg-purple-100", color: "text-purple-600", icon: "check"   },
-  { label: "Inscritos",   value: 75,  cambio: "+8%",  tendencia: "up",   fondo: "bg-green-100",  color: "text-green-600",  icon: "diploma" },
+// Umbral del % de Prospectos que dispara la alerta "sin contactar".
+const UMBRAL_SIN_CONTACTAR = 20;
+
+// El backend manda status en español, pero por si acaso aceptamos también en inglés.
+const estadoTraduccion = {
+  Prospect:  "Prospecto",
+  Contacted: "Contactado",
+  Confirmed: "Confirmado",
+  Enrolled:  "Inscrito",
+};
+
+const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+// Los estilos del KPI son fijos. El número y el % se calculan abajo.
+const KPI_TEMPLATE = [
+  { label: "Prospectos",  estado: "Prospecto",  fondo: "bg-blue-100",   color: "text-blue-600",   icon: "users"   },
+  { label: "Contactados", estado: "Contactado", fondo: "bg-yellow-100", color: "text-yellow-600", icon: "phone"   },
+  { label: "Confirmados", estado: "Confirmado", fondo: "bg-purple-100", color: "text-purple-600", icon: "check"   },
+  { label: "Inscritos",   estado: "Inscrito",   fondo: "bg-green-100",  color: "text-green-600",  icon: "diploma" },
 ];
 
-const leadsPorMes = [
-  { mes: "Sep", leads: 45 },
-  { mes: "Oct", leads: 62 },
-  { mes: "Nov", leads: 58 },
-  { mes: "Dic", leads: 40 },
-  { mes: "Ene", leads: 75 },
-  { mes: "Feb", leads: 88 },
-];
-
-const distribucion = [
-  { name: "Prospecto",  value: 300, fill: "#60a5fa" },
-  { name: "Contactado", value: 150, fill: "#fbbf24" },
-  { name: "Confirmado", value:  50, fill: "#a78bfa" },
-  { name: "Inscrito",   value:  75, fill: "#34d399" },
-];
-
-const alertas = [
-  { id: 1, texto: "8 prospectos sin contactar hace más de 7 días", tipo: "alta"  },
-  { id: 2, texto: "Irvin Chan superó su meta mensual de inscritos", tipo: "logro" },
-  { id: 3, texto: "3 confirmados aún pendientes de inscripción",    tipo: "media" },
-  { id: 4, texto: "Nuevo ciclo de captación arranca en 14 días",    tipo: "info"  },
-];
-
-// Licenciaturas más solicitadas por los leads
-// porcentaje = leads de esa carrera ÷ total de leads × 100
-const licenciaturas = [
-  { id: 1, nombre: "Ingeniería en Sistemas",      abrev: "Ing. Sistemas",  leads: 45 },
-  { id: 2, nombre: "Administración de Empresas",  abrev: "Adm. Empresas",  leads: 38 },
-  { id: 3, nombre: "Contaduría y Finanzas",       abrev: "Contaduría",     leads: 32 },
-  { id: 4, nombre: "Diseño Gráfico Digital",      abrev: "Diseño Gráfico", leads: 27 },
-  { id: 5, nombre: "Mercadotecnia",               abrev: "Mercadotecnia",  leads: 14 },
-];
-
-
-const horarios = [
-  { tipo: "Matutino",   descripcion: "7:00 – 13:00 hrs",  leads: 68, porcentaje: 44, color: "bg-sky-500",    fondo: "bg-sky-50",    texto: "text-sky-700"    },
-  { tipo: "Vespertino", descripcion: "13:00 – 19:00 hrs", leads: 52, porcentaje: 33, color: "bg-amber-500",  fondo: "bg-amber-50",  texto: "text-amber-700"  },
-  { tipo: "Ejecutivo",  descripcion: "19:00 – 22:00 hrs", leads: 36, porcentaje: 23, color: "bg-purple-500", fondo: "bg-purple-50", texto: "text-purple-700" },
-];
-
-// Colores del borde izquierdo y fondo para cada tipo de alerta
+// Estilo de cada tipo de alerta.
 const ALERTA_ESTILO = {
   alta:  "border-l-4 border-red-400 bg-red-50",
   media: "border-l-4 border-yellow-400 bg-yellow-50",
-  logro: "border-l-4 border-green-400 bg-green-50",
   info:  "border-l-4 border-sky-400 bg-sky-50",
 };
 
+
+// Iconos
 
 function IconUsers({ className }) {
   return (
@@ -112,7 +88,6 @@ function IconDiploma({ className }) {
   );
 }
 
-// Mapa para elegir el ícono correcto con una clave de texto
 const ICONOS = {
   users:   IconUsers,
   phone:   IconPhone,
@@ -121,18 +96,16 @@ const ICONOS = {
 };
 
 
-// COMPONENTE AUXILIAR: KPICard
+// Tarjeta de KPI
 
 function KPICard({ label, value, cambio, tendencia, fondo, color, icon }) {
   const esPositivo = tendencia === "up";
   const Icono = ICONOS[icon];
   return (
     <div className="bg-white rounded-lg shadow p-6 flex items-start gap-4">
-      {/* Cuadro de color con ícono */}
       <div className={`${fondo} ${color} p-3 rounded-lg flex-shrink-0`}>
         <Icono className="w-6 h-6" />
       </div>
-      {/* Texto */}
       <div>
         <p className="text-sm text-slate-500">{label}</p>
         <p className="text-3xl font-bold text-slate-800">{value}</p>
@@ -144,178 +117,361 @@ function KPICard({ label, value, cambio, tendencia, fondo, color, icon }) {
   );
 }
 
-// COMPONENTE PRINCIPAL: Dashboard
+
+// Componente principal
 
 function Dashboard() {
+  const [leads, setLeads]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+
+  useEffect(() => {
+    fetch(API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error("Error en la API");
+        return res.json();
+      })
+      .then((data) => {
+        setLeads(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Error cargando dashboard");
+        setLoading(false);
+      });
+  }, []);
+
+  // Funciones que sacan datos de la lista de leads.
+
+  // Compara el status sin importar si viene en español o inglés.
+  const matchEstado = (lead, estadoEs) => {
+    const estadoEn = Object.keys(estadoTraduccion).find(
+      (k) => estadoTraduccion[k] === estadoEs
+    );
+    return lead.status === estadoEs || lead.status === estadoEn;
+  };
+
+  const countPorEstado = (estadoEs) =>
+    leads.filter((l) => matchEstado(l, estadoEs)).length;
+
+  // Calcula el % vs el mes anterior.
+  const calcularCambio = (estadoEs) => {
+    const ahora = new Date();
+    const mesActual  = ahora.getMonth();
+    const anioActual = ahora.getFullYear();
+    const mesAnterior     = mesActual === 0 ? 11 : mesActual - 1;
+    const anioMesAnterior = mesActual === 0 ? anioActual - 1 : anioActual;
+
+    const enMes = (m, y) =>
+      leads.filter((l) => {
+        if (!l.created_at || !matchEstado(l, estadoEs)) return false;
+        const d = new Date(l.created_at);
+        return d.getMonth() === m && d.getFullYear() === y;
+      }).length;
+
+    const actual   = enMes(mesActual,  anioActual);
+    const anterior = enMes(mesAnterior, anioMesAnterior);
+
+    // Si el mes anterior fue 0, cualquier valor positivo cuenta como +100%.
+    if (anterior === 0) {
+      return {
+        cambio: actual > 0 ? "+100%" : "0%",
+        tendencia: actual > 0 ? "up" : "down",
+      };
+    }
+
+    const pct = Math.round(((actual - anterior) / anterior) * 100);
+    return {
+      cambio: `${pct >= 0 ? "+" : ""}${pct}%`,
+      tendencia: pct >= 0 ? "up" : "down",
+    };
+  };
+
+  // Datos en vivo
+
+  const kpis = KPI_TEMPLATE.map((tpl) => {
+    const { cambio, tendencia } = calcularCambio(tpl.estado);
+    return {
+      label:     tpl.label,
+      value:     countPorEstado(tpl.estado),
+      cambio,
+      tendencia,
+      fondo:     tpl.fondo,
+      color:     tpl.color,
+      icon:      tpl.icon,
+    };
+  });
+
+  const distribucion = [
+    { name: "Prospecto",  value: countPorEstado("Prospecto"),  fill: "#60a5fa" },
+    { name: "Contactado", value: countPorEstado("Contactado"), fill: "#fbbf24" },
+    { name: "Confirmado", value: countPorEstado("Confirmado"), fill: "#a78bfa" },
+    { name: "Inscrito",   value: countPorEstado("Inscrito"),   fill: "#34d399" },
+  ];
+
+  // Las 5 carreras más pedidas.
+  const conteoLicenciaturas = {};
+  leads.forEach((l) => {
+    const k = l.program_interest || "Sin definir";
+    conteoLicenciaturas[k] = (conteoLicenciaturas[k] || 0) + 1;
+  });
+  const licenciaturas = Object.entries(conteoLicenciaturas)
+    .map(([nombre, n]) => ({
+      nombre,
+      abrev: nombre.split(" ").slice(0, 2).join(" "),
+      leads: n,
+    }))
+    .sort((a, b) => b.leads - a.leads)
+    .slice(0, 5);
+
+  // Leads de los últimos 6 meses, contando el actual.
+  const leadsPorMes = (() => {
+    const ahora = new Date();
+    const resultado = [];
+    for (let i = 5; i >= 0; i--) {
+      const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
+      const m = fecha.getMonth();
+      const y = fecha.getFullYear();
+      const count = leads.filter((l) => {
+        if (!l.created_at) return false;
+        const d = new Date(l.created_at);
+        return d.getMonth() === m && d.getFullYear() === y;
+      }).length;
+      resultado.push({ mes: MESES[m], leads: count });
+    }
+    return resultado;
+  })();
+
+  // El backend ya manda los leads del más nuevo al más viejo, así que slice(0,5) son los recientes.
+  const recientes = leads.slice(0, 5);
+
+  // Alertas derivadas de los datos. Cada regla aporta 0 o 1 alerta al array.
+  const construirAlertas = () => {
+    const lista = [];
+    const total = leads.length;
+
+    // 1. Prospectos sin contactar (% configurable arriba).
+    if (total > 0) {
+      const prospectos = countPorEstado("Prospecto");
+      const pct = (prospectos / total) * 100;
+      if (pct >= UMBRAL_SIN_CONTACTAR) {
+        lista.push({
+          id: "sin-contactar",
+          tipo: "alta",
+          texto: `${Math.round(pct)}% de los leads están sin contactar (${prospectos} de ${total})`,
+        });
+      }
+    }
+
+    // 2. Leads sin asesor asignado.
+    const sinAsesor = leads.filter((l) => !l.advisor).length;
+    if (sinAsesor >= 1) {
+      lista.push({
+        id: "sin-asesor",
+        tipo: "media",
+        texto: `${sinAsesor} ${sinAsesor === 1 ? "lead sin asesor asignado" : "leads sin asesor asignado"}`,
+      });
+    }
+
+    // 3. Confirmados pendientes de inscripción.
+    const confirmados = countPorEstado("Confirmado");
+    if (confirmados >= 1) {
+      lista.push({
+        id: "confirmados-pendientes",
+        tipo: "media",
+        texto: `${confirmados} ${confirmados === 1 ? "confirmado pendiente" : "confirmados pendientes"} de inscripción`,
+      });
+    }
+
+    return lista;
+  };
+
+  const alertas = construirAlertas();
+
+  // Banderas para saber si una sección tiene datos.
+  const hayLeadsPorMes   = leadsPorMes.some((m) => m.leads > 0);
+  const hayDistribucion  = distribucion.some((d) => d.value > 0);
+  const hayLicenciaturas = licenciaturas.length > 0;
+  const hayRecientes     = recientes.length > 0;
+  const hayAlertas       = alertas.length > 0;
+
+  // Estados de carga y error.
+
+  if (loading) {
+    return (
+      <CRMLayout>
+        <p className="text-slate-500">Cargando dashboard...</p>
+      </CRMLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <CRMLayout>
+        <p className="text-red-500">{error}</p>
+      </CRMLayout>
+    );
+  }
+
   return (
     <CRMLayout>
 
-      {/* ── Encabezado ─────────────────────────────────────────────── */}
+      {/* Encabezado */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Dashboard Ejecutivo</h1>
         <p className="text-slate-500 mt-1">Resumen de captación · Ciclo Enero 2026</p>
       </div>
 
-      {/* ── Fila 1: KPI cards ──────────────────────────────────────── */}
+      {/* Fila 1: KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {kpis.map((kpi) => (
           <KPICard key={kpi.label} {...kpi} />
         ))}
       </div>
 
-      {/* ── Fila 2: Gráficas ───────────────────────────────────────── */}
+      {/* Fila 2: Gráficas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
-        {/* Gráfica de barras — leads por mes */}
+        {/* Gráfica de barras: leads por mes */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Leads por mes</h3>
-          {/*
-            ResponsiveContainer: hace que la gráfica ocupe el 100% del ancho
-            del contenedor padre, adaptándose a cualquier pantalla.
-            height={260} fija la altura en píxeles.
-          */}
-          <ResponsiveContainer width="100%" height={260}>
-            {/*
-              BarChart recibe el arreglo de datos (data).
-              margin agrega espacio interno alrededor de la gráfica.
-            */}
-            <BarChart data={leadsPorMes} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-              {/* Líneas de cuadrícula en gris claro */}
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              {/* Eje X: muestra el campo "mes" de cada objeto */}
-              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
-              {/* Eje Y: números automáticos */}
-              <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
-              {/* Tooltip: cuadro informativo al pasar el cursor */}
-              <Tooltip
-                contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
-              />
-              {/* Bar: dibuja una barra por cada objeto en data, usando el campo "leads" */}
-              <Bar dataKey="leads" fill="#38bdf8" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {hayLeadsPorMes ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={leadsPorMes} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="mes" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
+                />
+                <Bar dataKey="leads" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[260px] text-slate-400 text-sm">
+              Sin registros previos. Esperando próximas capturas.
+            </div>
+          )}
         </div>
 
-        {/* Gráfica de dona — distribución por etapa */}
+        {/* Gráfica de dona: distribución por etapa */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Distribución por etapa</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              {/*
-                Pie: cada objeto en "data" se convierte en un sector del pastel.
-                innerRadius crea el hueco central → efecto dona.
-                outerRadius define el tamaño total del pastel.
-                dataKey indica qué campo numérico usar para el tamaño de cada sector.
-              */}
-              
-              <Pie
-                data={distribucion}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={65}
-                outerRadius={100}
-                paddingAngle={3}
-              />
-              <Tooltip
-                contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
-              />
-              {/* Legend: leyenda de colores debajo de la gráfica */}
-              <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
-            </PieChart>
-          </ResponsiveContainer>
+          {hayDistribucion ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                {/* Pie: cada objeto es un sector. innerRadius hace el hueco del centro (efecto dona). */}
+                <Pie
+                  data={distribucion}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={65}
+                  outerRadius={100}
+                  paddingAngle={3}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
+                />
+                <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[260px] text-slate-400 text-sm">
+              Sin leads para distribuir.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Fila 3: Tabla + Alertas ────────────────────────────────── */}
+      {/* Fila 3: Tabla y Notificaciones */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Tabla de registros recientes */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Registros recientes</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-100 text-slate-600">
-                <tr>
-                  <th className="p-3 text-left">Nombre</th>
-                  <th className="p-3 text-left">Correo</th>
-                  <th className="p-3 text-left">Estatus</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((lead) => (
-                  <tr key={lead.id} className="border-t hover:bg-slate-50 transition">
-                    <td className="p-3 font-medium text-slate-800">{lead.name}</td>
-                    <td className="p-3 text-slate-500">{lead.email}</td>
-                    <td className="p-3">
-                      <Badge text={lead.status} />
-                    </td>
+          {hayRecientes ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-100 text-slate-600">
+                  <tr>
+                    <th className="p-3 text-left">Nombre</th>
+                    <th className="p-3 text-left">Correo</th>
+                    <th className="p-3 text-left">Estatus</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recientes.map((lead) => (
+                    <tr key={lead.id} className="border-t hover:bg-slate-50 transition">
+                      <td className="p-3 font-medium text-slate-800">{lead.full_name}</td>
+                      <td className="p-3 text-slate-500">{lead.email}</td>
+                      <td className="p-3">
+                        <Badge text={estadoTraduccion[lead.status] || lead.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-12 text-slate-400 text-sm">
+              Sin registros recientes.
+            </div>
+          )}
         </div>
 
-        {/* Lista de alertas destacadas */}
+        {/* Notificaciones de cambios */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Alertas y destacados</h3>
-          <ul className="flex flex-col gap-3">
-            {alertas.map((a) => (
-              <li key={a.id} className={`${ALERTA_ESTILO[a.tipo]} rounded-r-lg p-3`}>
-                <p className="text-sm text-slate-700">{a.texto}</p>
-              </li>
-            ))}
-          </ul>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Notificaciones de cambios</h3>
+          {hayAlertas ? (
+            <ul className="flex flex-col gap-3">
+              {alertas.map((a) => (
+                <li key={a.id} className={`${ALERTA_ESTILO[a.tipo]} rounded-r-lg p-3`}>
+                  <p className="text-sm text-slate-700">{a.texto}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex items-center justify-center py-12 text-slate-400 text-sm">
+              Sin notificaciones recientes.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Fila 4: Licenciaturas + Horarios ──────────────────────── */}
+      {/* Fila 4: Licenciaturas y Horarios */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
 
-        {/* Licenciaturas solicitadas — gráfica de barras */}
+        {/* Licenciaturas solicitadas: gráfica de barras */}
         <div className="bg-white rounded-lg shadow p-6 flex flex-col">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Licenciaturas solicitadas</h3>
-          {/* flex-1 + flex items-center centra la gráfica verticalmente en el espacio disponible */}
           <div className="flex-1 flex items-center">
-          {/* abrev se usa como etiqueta del eje X porque los nombres completos son muy largos */}
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={licenciaturas} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="abrev" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
-              <Tooltip
-                formatter={(value) => [value, "leads"]}
-                contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
-              />
-              <Bar dataKey="leads" fill="#38bdf8" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+            {hayLicenciaturas ? (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={licenciaturas} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  {/* abrev en el eje X: los nombres completos no caben. */}
+                  <XAxis dataKey="abrev" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    formatter={(value) => [value, "leads"]}
+                    contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,.1)" }}
+                  />
+                  <Bar dataKey="leads" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full flex items-center justify-center h-[220px] text-slate-400 text-sm">
+                Sin datos de carreras.
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Distribución por horario */}
+        {/* Horarios: pendiente de columna `schedule` en BD. */}
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Horarios escogidos</h3>
-          <div className="flex flex-col gap-3">
-            {horarios.map((h) => (
-              <div key={h.tipo} className={`${h.fondo} rounded-lg p-4`}>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <p className={`font-semibold ${h.texto}`}>{h.tipo}</p>
-                    <p className="text-xs text-slate-400">{h.descripcion}</p>
-                  </div>
-                  <span className={`text-2xl font-bold ${h.texto}`}>{h.leads}</span>
-                </div>
-                {/* Barra de progreso sobre fondo blanco semitransparente */}
-                <div className="w-full bg-white/60 rounded-full h-2">
-                  <div
-                    className={`${h.color} h-2 rounded-full`}
-                    style={{ width: `${h.porcentaje}%` }}
-                  />
-                </div>
-                <p className="text-xs text-slate-400 mt-1">{h.porcentaje}% del total</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-center py-12 text-slate-400 text-sm text-center px-4">
+            Sin información de horarios. Falta integración con el formulario de captura.
           </div>
         </div>
 
