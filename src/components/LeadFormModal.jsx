@@ -1,15 +1,15 @@
 import { useState } from "react";
 
 const CARRERAS = [
-  "Business Administration",
-  "Public Accounting",
-  "Law",
-  "Systems Engineering",
-  "Psychology",
+  "Administración de Empresas",
+  "Contabilidad",
+  "Derecho",
+  "Ingeniería de Sistemas",
+  "Psicología",
   "Marketing",
-  "Architecture",
-  "Medicine",
-];
+  "Comunicación",
+  "Gastronomia",
+]
 
 function LeadFormModal({ isOpen, onClose }) {
   const [form, setForm] = useState({
