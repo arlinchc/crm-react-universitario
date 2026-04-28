@@ -318,8 +318,8 @@ function Dashboard() {
 
       {/* Encabezado */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard Ejecutivo</h1>
-        <p className="text-slate-500 mt-1">Resumen de captación · Ciclo Enero 2026</p>
+        <h1 className="text-2xl font-bold mb-6 text-[#f0c02f]">Dashboard Ejecutivo</h1>
+        <p className="text-2xl font-bold mb-6 text-[#ffffff]">Resumen de captación · Ciclo Enero 2026</p>
       </div>
 
       {/* Fila 1: KPI cards */}
